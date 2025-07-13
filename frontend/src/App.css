@@ -332,3 +332,99 @@ body {
 .home-button:hover {
   background-color: #ffffff;
 }
+
+/* ======================================================= */
+/* === 父容器 Flexbox 样式（保持不变） === */
+/* ======================================================= */
+.stock-list-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+/* ======================================================= */
+/* === 列表样式（添加滚动功能） === */
+/* ======================================================= */
+.top-movers-list {
+  max-width: 500px;
+  width: 100%;
+  margin: 20px 0;
+  
+  /* --- 新增的核心改动在这里 --- */
+  /* 1. 设置一个最大高度。这里的高度大约可以显示5-6个条目。*/
+  max-height: 360px; 
+  
+  /* 2. 当内容超出最大高度时，显示垂直滚动条。'auto'表示仅在需要时显示。*/
+  overflow-y: auto;
+  
+  /* --- 其他样式保持不变 --- */
+  list-style-type: none;
+  padding: 0;
+  border: 1px solid #444;
+  border-radius: 8px;
+  /* 注意：这里的 overflow: hidden; 被 overflow-y: auto; 替代了 */
+}
+
+/* ======================================================= */
+/* === 新增：美化滚动条，使其匹配暗色主题 === */
+/* ======================================================= */
+/* 适用于 Webkit 浏览器 (Chrome, Safari, Edge) */
+.top-movers-list::-webkit-scrollbar {
+  width: 8px; /* 滚动条宽度 */
+}
+
+.top-movers-list::-webkit-scrollbar-track {
+  background: #2c2c2c; /* 滚动条轨道颜色，与列表项背景色一致 */
+  border-radius: 10px;
+}
+
+.top-movers-list::-webkit-scrollbar-thumb {
+  background-color: #555; /* 滚动条滑块颜色 */
+  border-radius: 10px;
+  border: 2px solid #2c2c2c; /* 创建一个内边距效果，让滑块看起来更细 */
+}
+
+.top-movers-list::-webkit-scrollbar-thumb:hover {
+  background-color: #777; /* 鼠标悬停时滑块的颜色 */
+}
+
+
+/* --- 列表项 li 和链接 a 的样式保持不变 --- */
+
+.top-movers-list li {
+  background-color: #2c2c2c;
+  border-bottom: 1px solid #444;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.top-movers-list li:last-child {
+  border-bottom: none;
+}
+
+.top-movers-list li:hover {
+  background-color: #3a3a3a;
+}
+
+.top-movers-list li a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  text-decoration: none;
+  color: #e0e0e0;
+  font-size: 1.1rem;
+}
+
+.ticker-name {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.ticker-change {
+  font-family: 'Roboto Mono', 'Courier New', Courier, monospace;
+  min-width: 80px;
+  text-align: right;
+}

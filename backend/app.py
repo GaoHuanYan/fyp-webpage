@@ -141,6 +141,53 @@ def get_ai_summary():
         print(f"An error occurred while calling the DeepSeek API: {e}")
         return jsonify({'error': 'Failed to generate AI summary due to an external API issue.'}), 502 # 502 Bad Gateway
 
+@app.route('/api/top-movers')
+def get_top_movers():
+    """
+    高效地从 stock_predictions 表中获取模型预测的、未来波动最大的前10只股票。
+    """
+    conn = get_db_connection()
+    
+    # 1. 首先，找到数据库中最新的一个预测日期
+    latest_date_row = conn.execute(
+        "SELECT MAX(prediction_date) as max_date FROM stock_predictions"
+    ).fetchone()
+
+    if not latest_date_row or not latest_date_row['max_date']:
+        conn.close()
+        return jsonify([]) # 如果没有预测数据，返回空列表
+
+    latest_date = latest_date_row['max_date']
+    
+    # 2. 查询这个最新日期下，预测波动百分比（绝对值）最大的前10条记录
+    #    我们直接使用已经计算好的 predicted_change_pct 字段
+    movers_rows = conn.execute(
+        """
+        SELECT 
+            stock_code AS ticker, 
+            predicted_change_pct AS change_percent 
+        FROM 
+            stock_predictions 
+        WHERE 
+            prediction_date = ?
+        ORDER BY 
+            ABS(predicted_change_pct) DESC 
+        LIMIT 10
+        """,
+        (latest_date,)
+    ).fetchall()
+    
+    conn.close()
+
+    # 3. 将查询结果转换为JSON格式
+    #    fetchall() 返回的是 Row 对象列表, 我们需要转换为字典列表
+    top_movers = [dict(row) for row in movers_rows]
+    
+    return jsonify(top_movers)
+
+
+
+
 if __name__ == '__main__':
 
     app.run(debug=True, port=5001)
