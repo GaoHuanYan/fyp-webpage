@@ -1,5 +1,3 @@
-
-
 import yfinance as yf
 import sqlite3
 from datetime import datetime, timezone
@@ -7,7 +5,6 @@ import time
 import logging
 import random
 
-# --- 配置 (保持不变) ---
 DATABASE_FILE = "stock_data.db"
 DELAY_RANGE = (3, 7)
 HSI_COMPONENTS = [
@@ -26,7 +23,7 @@ HSI_COMPONENTS = [
 ]
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# --- 数据库函数 (保持不变) ---
+# --- Database Functions (Unaltered) ---
 def create_news_table(conn):
     try:
         with conn:
@@ -44,7 +41,7 @@ def create_news_table(conn):
             """)
             logging.info("Table 'yahoo_finance_news' checked/created successfully.")
     except sqlite3.Error as e:
-        logging.error(f"创建新闻表格失败: {e}")
+        logging.error(f"Failed to create news table: {e}")
 
 def insert_news_data(conn, news_data_list):
     if not news_data_list:
@@ -60,21 +57,21 @@ def insert_news_data(conn, news_data_list):
         conn.commit()
         return cursor.rowcount
     except sqlite3.Error as e:
-        logging.error(f"数据库新闻插入操作失败: {e}")
+        logging.error(f"Database news insertion failed: {e}")
         conn.rollback()
         return 0
 
-# --- 主函数 (已根据新数据结构修复) ---
+# --- Main Function (Fixed for new data structure) ---
 def fetch_and_store_news_fixed():
     conn = None
     try:
         conn = sqlite3.connect(DATABASE_FILE)
-        logging.info("数据库连接已打开。")
+        logging.info("Database connection opened.")
         create_news_table(conn)
         
         total_new_entries = 0
         for i, stock_code in enumerate(HSI_COMPONENTS):
-            logging.info(f"--- 获取新闻 {i+1}/{len(HSI_COMPONENTS)}: {stock_code} ---")
+            logging.info(f"--- Fetching news {i+1}/{len(HSI_COMPONENTS)}: {stock_code} ---")
             
             current_stock_news_to_insert = []
             try:
@@ -82,38 +79,38 @@ def fetch_and_store_news_fixed():
                 news_list = ticker.news
 
                 if not news_list:
-                    logging.warning(f"未找到股票 {stock_code} 的新闻。")
+                    logging.warning(f"No news found for stock {stock_code}.")
                     time.sleep(1)
                     continue
 
-                logging.info(f"成功获取 {stock_code} 的 {len(news_list)} 条新闻，正在处理...")
+                logging.info(f"Successfully fetched {len(news_list)} news items for {stock_code}, now processing...")
 
                 for news_item in news_list:
-                    # --- 核心改动：根据新的数据结构提取信息 ---
+                    # --- Core Change: Extracting info based on the new data structure ---
                     
-                    # 1. 检查必要的数据是否存在
+                    # 1. Check if essential data exists
                     if 'id' not in news_item or 'content' not in news_item or 'pubDate' not in news_item['content']:
-                        logging.warning("跳过一条格式不完整的新闻。")
+                        logging.warning("Skipping one news item with incomplete format.")
                         continue
                     
                     content = news_item['content']
                     
-                    # 2. 获取数据
+                    # 2. Get the data
                     uuid = news_item['id']
                     title = content.get('title')
                     summary = content.get('summary')
                     
-                    # 3. 解析新的日期格式 (从 '2025-06-13T21:04:32Z' 转换为 'YYYY-MM-DD HH:MM:SS')
+                    # 3. Parse the new date format (from '2025-06-13T21:04:32Z' to 'YYYY-MM-DD HH:MM:SS')
                     try:
-                        # fromisoformat 可以直接处理 'Z' (Zulu time / UTC)
+                        # fromisoformat can directly handle 'Z' (Zulu time / UTC)
                         dt_object_utc = datetime.fromisoformat(content['pubDate'])
-                        # 转换为本地时区或保持UTC，然后格式化
+                        # Convert to local timezone or keep as UTC, then format
                         formatted_datetime = dt_object_utc.strftime('%Y-%m-%d %H:%M:%S')
                     except (ValueError, TypeError):
-                        logging.warning(f"无法解析日期 '{content.get('pubDate')}'，跳过此新闻。")
+                        logging.warning(f"Could not parse date '{content.get('pubDate')}', skipping this news item.")
                         continue
 
-                    # 4. 安全地获取链接
+                    # 4. Safely get the link
                     link = None
                     if 'canonicalUrl' in content and isinstance(content['canonicalUrl'], dict):
                         link = content['canonicalUrl'].get('url')
@@ -127,27 +124,27 @@ def fetch_and_store_news_fixed():
                         link
                     ))
                 
-                # --- 存储部分 (保持不变) ---
+                # --- Storage Part (Unaltered) ---
                 if current_stock_news_to_insert:
                     inserted_count = insert_news_data(conn, current_stock_news_to_insert)
-                    logging.info(f"成功向数据库插入了 {inserted_count} 条关于 {stock_code} 的新记录。")
+                    logging.info(f"Successfully inserted {inserted_count} new records for {stock_code} into the database.")
                     total_new_entries += inserted_count
 
             except Exception as e:
-                logging.error(f"处理股票 {stock_code} 时发生未知错误: {e}")
+                logging.error(f"An unknown error occurred while processing stock {stock_code}: {e}")
             
             delay = random.uniform(*DELAY_RANGE)
-            logging.info(f"暂停 {delay:.2f} 秒...")
+            logging.info(f"Pausing for {delay:.2f} seconds...")
             time.sleep(delay)
 
-        logging.info(f"所有股票处理完毕。总共向数据库添加了 {total_new_entries} 条全新的新闻记录。")
+        logging.info(f"All stocks processed. A total of {total_new_entries} new news records were added to the database.")
 
     finally:
         if conn:
             conn.close()
-            logging.info("数据库连接已关闭。")
+            logging.info("Database connection closed.")
 
-# --- 主程序入口 ---
+# --- Main Program Entry Point ---
 if __name__ == "__main__":
     fetch_and_store_news_fixed()
-    logging.info("新闻抓取任务全部完成！")
+    logging.info("News fetching task completed!")

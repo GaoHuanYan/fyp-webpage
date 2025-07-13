@@ -1,24 +1,22 @@
-// 文件路径: backend/server.js
-
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const OpenAI = require('openai');
 
 const app = express();
-const PORT = 3001; // AI后端运行在 3001 端口
+const PORT = 3001; // AI backend runs on port 3001
 
-// --- 中间件 ---
+// --- Middleware ---
 app.use(cors());
 app.use(express.json());
 
-// 初始化 DeepSeek 客户端
+// Initialize DeepSeek Client
 const deepseek = new OpenAI({
     baseURL: 'https://api.deepseek.com',
     apiKey: process.env.DEEPSEEK_API_KEY,
 });
 
-// --- API 端点 ---
+// --- API Endpoints ---
 app.post('/api/summarize', async (req, res) => {
     try {
         const { historicalData, ticker } = req.body;
@@ -26,15 +24,15 @@ app.post('/api/summarize', async (req, res) => {
             return res.status(400).json({ error: 'Ticker and historical data are required.' });
         }
 
-        // 我们只发送最近30天的数据给AI，以节省token并聚焦于近期表现
+        // We only send the last 30 days of data to the AI to save tokens and focus on recent performance
         const recentData = historicalData.slice(-30);
 
         const prompt = `
-            你是一位精明且简洁的金融分析师。
-            请根据以下关于股票代码 "${ticker}" 的历史价格数据，用中文提供一个2-3句话的摘要，总结其近期表现和关键趋势。
-            请重点关注总体方向、重要的波峰和波谷。不要说任何“你好”或“当然”之类的开场白，直接给出分析。
+            You are a sharp and concise financial analyst.
+            Based on the following historical price data for the stock ticker "${ticker}", provide a 2-3 sentence summary in English that covers its recent performance and key trends.
+            Focus on the overall direction, significant peaks, and troughs. Do not use any introductory phrases like "Hello" or "Of course." Provide the analysis directly.
 
-            数据 (JSON格式, 最近30天):
+            Data (JSON format, last 30 days):
             ${JSON.stringify(recentData)}
         `;
 
@@ -43,7 +41,7 @@ app.post('/api/summarize', async (req, res) => {
         const completion = await deepseek.chat.completions.create({
             model: "deepseek-chat",
             messages: [
-                { role: "system", content: "你是一位精明的金融分析师，使用中文进行回复。" },
+                { role: "system", content: "You are a sharp financial analyst who responds in English." },
                 { role: "user", content: prompt }
             ],
             temperature: 0.5,
@@ -60,7 +58,7 @@ app.post('/api/summarize', async (req, res) => {
     }
 });
 
-// --- 启动服务器 ---
+// --- Start Server ---
 app.listen(PORT, () => {
     console.log(`✅ AI Backend server is running on http://localhost:${PORT}`);
 });

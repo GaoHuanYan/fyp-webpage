@@ -25,16 +25,16 @@ HSI_COMPONENTS = [
     "9618.HK", "9633.HK", "9888.HK", "9901.HK", "9961.HK", "9988.HK", "9999.HK",
 ]
 
-# 3. 时间和延迟配置
+
 END_DATE = datetime.now()
 START_DATE = END_DATE - timedelta(days=365 * 1)
 DELAY_RANGE = (5, 10)  
 
-# 4. 日志配置
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def create_tables(conn):
-    """使用 SQLite 语法创建表格"""
+    """Creates tables using SQLite syntax."""
     try:
         with conn: 
             cursor = conn.cursor()
@@ -57,31 +57,30 @@ def create_tables(conn):
             cursor.execute(create_stock_table_query)
             logging.info("Table 'stock_data' checked/created successfully.")
     except sqlite3.Error as e:
-        logging.error(f"创建表格失败: {e}")
+        logging.error(f"Failed to create tables: {e}")
 
 def fetch_all_data():
     """
-    核心函数：逐个获取所有股票数据，并一次性存入 SQLite。
+    Core function: Fetches all stock data one by one and saves it to SQLite in a single batch.
     """
     all_rows_to_insert = []
     failed_stocks = []
 
-    # --- 第一步: 循环获取所有数据 ---
+
     for i, stock_code in enumerate(HSI_COMPONENTS):
-        logging.info(f"--- 处理 {i+1}/{len(HSI_COMPONENTS)}: {stock_code} ---")
+        logging.info(f"--- Processing {i+1}/{len(HSI_COMPONENTS)}: {stock_code} ---")
         try:
             ticker = yf.Ticker(stock_code)
             stock_data = ticker.history(start=START_DATE, end=END_DATE)
 
             if stock_data.empty:
-                logging.warning(f"未找到股票 {stock_code} 的历史数据。")
+                logging.warning(f"No historical data found for stock {stock_code}.")
                 continue
 
-            # 准备要插入的数据行
             for trade_date, row in stock_data.iterrows():
                 all_rows_to_insert.append((
                     stock_code,
-                    trade_date.strftime('%Y-%m-%d'), # 日期存为文本
+                    trade_date.strftime('%Y-%m-%d'), 
                     None if pd.isna(row['Open']) else float(row['Open']),
                     None if pd.isna(row['High']) else float(row['High']),
                     None if pd.isna(row['Low']) else float(row['Low']),
@@ -90,30 +89,27 @@ def fetch_all_data():
                     None if pd.isna(row['Dividends']) else float(row['Dividends']),
                     None if pd.isna(row['Stock Splits']) else float(row['Stock Splits'])
                 ))
-            logging.info(f"成功获取 {stock_code} 的 {len(stock_data)} 条数据。")
+            logging.info(f"Successfully fetched {len(stock_data)} records for {stock_code}.")
 
         except Exception as e:
-            logging.error(f"获取股票 {stock_code} 历史数据失败: {e}")
+            logging.error(f"Failed to fetch historical data for stock {stock_code}: {e}")
             failed_stocks.append(stock_code)
         
-        # 随机延迟，避免被服务器限制
         delay = random.uniform(*DELAY_RANGE)
-        logging.info(f"暂停 {delay:.2f} 秒...")
+        logging.info(f"Pausing for {delay:.2f} seconds...")
         time.sleep(delay)
 
-    # --- 第二步: 批量插入所有获取到的数据 ---
     if not all_rows_to_insert:
-        logging.error("未能成功获取任何股票数据，数据库未写入。")
+        logging.error("Failed to fetch any stock data. Database will not be written to.")
         return
 
-    logging.info(f"准备将 {len(all_rows_to_insert)} 条数据记录一次性存入数据库...")
+    logging.info(f"Preparing to insert {len(all_rows_to_insert)} records into the database in a single batch...")
     conn = None
     try:
         conn = sqlite3.connect(DATABASE_FILE)
-        create_tables(conn) # 确保表存在
+        create_tables(conn) 
         cursor = conn.cursor()
 
-        # 使用 SQLite 的 ON CONFLICT 语法 (等同于 PostgreSQL 的 ON CONFLICT ... DO UPDATE)
         insert_query = """
             INSERT INTO stock_data (
                 stock_code, trade_date, open_price, high_price, low_price,
@@ -129,26 +125,24 @@ def fetch_all_data():
                 stock_splits = excluded.stock_splits;
         """
         
-        # executemany() 是最高效的批量插入方法
         cursor.executemany(insert_query, all_rows_to_insert)
         conn.commit()
-        logging.info(f"成功向数据库批量插入/更新了 {cursor.rowcount} 条记录。")
+        logging.info(f"Successfully batch inserted/updated {cursor.rowcount} records in the database.")
 
     except sqlite3.Error as e:
-        logging.error(f"数据库批量插入操作失败: {e}")
+        logging.error(f"Database batch insert operation failed: {e}")
     finally:
         if conn:
             conn.close()
-            logging.info("数据库连接已关闭。")
+            logging.info("Database connection closed.")
     
     if failed_stocks:
-        logging.warning(f"以下股票未能成功下载: {failed_stocks}")
+        logging.warning(f"The following stocks failed to download: {failed_stocks}")
 
 if __name__ == "__main__":
-    # 在运行前，删除旧的数据库文件以确保数据是全新的
     if os.path.exists(DATABASE_FILE):
-        logging.warning(f"发现旧的数据库文件 '{DATABASE_FILE}'，正在删除...")
+        logging.warning(f"Old database file '{DATABASE_FILE}' found, deleting...")
         os.remove(DATABASE_FILE)
         
     fetch_all_data()
-    logging.info("数据抓取任务全部完成！")
+    logging.info("Data fetching task completed!")
