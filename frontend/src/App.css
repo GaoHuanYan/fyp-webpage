@@ -1,6 +1,6 @@
-/* File Path: frontend/src/App.css (Final version with English comments) */
+/* src/App.css (Final, Complete Version) */
 
-/* --- Original General Styles (No changes) --- */
+/* --- 1. 全局和基础样式 --- */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -27,30 +27,49 @@ body {
   padding: 20px;
 }
 
-h1 {
-  text-align: center;
-  width: 100%;
-  margin-bottom: 40px;
+
+/* --- 2. 顶部导航栏和搜索框 --- */
+.header-top-bar {
+  display: flex;
+  justify-content: space-between; /* 将标题和搜索框推到两端 */
+  align-items: center;            /* 垂直居中 */
+  width: 95%;                     /* 给予一些边距 */
+  max-width: 1400px;
+  margin-bottom: 30px;            /* 与下方内容的间距 */
 }
 
-.stock-list-container {
-  text-align: center;
+.main-title {
+  margin: 0; 
+  font-size: 1.5em;
+  text-align: left;
+  color: #f0f0f0;
 }
 
-.search-container input[type="text"] {
-  padding: 10px;
-  font-size: 16px;
-  width: 250px;
+.search-container-top-right {
+  display: flex;
+  align-items: center;
+}
+
+.search-container-top-right input[type="text"] {
+  padding: 8px 12px;
+  font-size: 14px;
+  width: 200px;
   border-radius: 5px;
   border: 1px solid #61dafb;
   background-color: #3a3f44;
   color: white;
+  transition: all 0.2s ease;
 }
 
-.search-container button {
-  padding: 10px 20px;
-  font-size: 16px;
-  margin-left: 10px;
+.search-container-top-right input[type="text"]:focus {
+  outline: none;
+  box-shadow: 0 0 5px #61dafb;
+}
+
+.search-container-top-right button {
+  padding: 8px 16px;
+  font-size: 14px;
+  margin-left: 8px;
   cursor: pointer;
   border-radius: 5px;
   background-color: transparent;
@@ -59,9 +78,40 @@ h1 {
   transition: all 0.2s ease;
 }
 
-.search-container button:hover {
+.search-container-top-right button:hover {
   background-color: #61dafb;
   color: #282c34;
+}
+
+
+/* --- 3. 主页组件 (恒生指数 & 股票列表) --- */
+.hsi-chart-container {
+  width: 95%;
+  max-width: 1200px;
+  margin: 20px auto;
+  background-color: #3a3f44;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.hsi-chart-container.placeholder {
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+}
+
+.hsi-chart-container h3 {
+  margin-top: 0;
+  text-align: center;
+  font-weight: 500;
+  color: #eee;
+}
+
+.stock-list-container {
+  text-align: center;
+  width: 100%;
 }
 
 .stock-list-container hr {
@@ -96,6 +146,8 @@ h1 {
   color: #282c34;
 }
 
+
+/* --- 4. 股票详情页布局 --- */
 .stock-details-page-container {
     width: 100%;
     display: flex;
@@ -106,6 +158,7 @@ h1 {
 .stock-details-subtitle {
     text-align: center;
     margin-bottom: 20px;
+    color: #ccc;
 }
 
 .details-container {
@@ -118,6 +171,8 @@ h1 {
   margin: 0 auto;
 }
 
+
+/* --- 5. 股票详情页组件 (图表, AI摘要, 新闻) --- */
 .chart-container {
   flex: 3;
   min-width: 60%;
@@ -136,7 +191,7 @@ h1 {
 }
 
 .ai-summary-container {
-  background-color: #2c3e50; /* This is the AI card background color we modified earlier */
+  background-color: #2c3e50;
   border-radius: 8px;
   padding: 20px;
 }
@@ -169,7 +224,6 @@ h1 {
   align-self: flex-start;
 }
 
-/* Merged and corrected rule for the news header */
 .news-header {
   cursor: pointer;
   display: flex;
@@ -180,8 +234,8 @@ h1 {
   border-bottom: 1px solid #555;
   transition: background-color 0.2s ease;
   user-select: none;
-  font-size: 0.85em; /* Using the smaller font size you wanted */
-  font-weight: 600; /* Keeping it semi-bold for visibility */
+  font-size: 0.85em;
+  font-weight: 600;
   color: #f0f0f0;
 }
 
@@ -197,7 +251,7 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 15px 0; /* Vertical padding, horizontal is controlled by parent */
+  padding: 15px 0;
   border-bottom: 1px solid #484848;
 }
 
@@ -206,22 +260,20 @@ h1 {
 }
 
 .news-content {
-  margin-right: 15px;
+  margin-right: 12px;
   flex: 1;
 }
 
-/* News item title (h4) */
 .news-item h4 {
   margin-top: 0;
   margin-bottom: 5px;
-  font-size: 0.8em; /* Smaller font size for the title */
+  font-size: 0.7em;
   color: #f0f0f0;
 }
 
-/* News item summary content (p) */
 .news-item p {
   margin: 0;
-  font-size: 0.7em; /* Smaller font size for the summary */
+  font-size: 0.5em;
   color: #ccc;
 }
 
@@ -235,4 +287,56 @@ h1 {
 .news-list > p {
   padding: 20px 10px;
   color: #888;
+}
+
+
+/* --- 6. 自定义错误页面样式 (新增部分) --- */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  margin-top: 50px;
+  background-color: #2c303a; /* 一个比背景稍亮的颜色 */
+  border-radius: 8px;
+  border: 1px solid #ff4d4d; /* 红色边框强调错误 */
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 48px; /* 大大的符号 */
+  margin-bottom: 20px;
+}
+
+.error-container h2 {
+  color: #ff8a8a; /* 淡红色标题 */
+  margin-bottom: 15px;
+}
+
+.error-message {
+  color: #e0e0e0; /* 错误详情文本颜色 */
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 30px;
+}
+
+.home-button {
+  background-color: #61dafb;
+  color: #282c34;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.home-button:hover {
+  background-color: #ffffff;
 }

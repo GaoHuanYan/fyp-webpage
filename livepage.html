@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票数据查询</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            text-align: center;
+        }
+        input, button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #chartContainer {
+            width: 80%;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>股票历史数据查询</h1>
+    <input type="text" id="stockCode" placeholder="输入股票代码">
+    <button onclick="startRealTimeUpdates()">查询并开始实时更新</button>
+    <div id="chartContainer">
+        <canvas id="stockChart"></canvas>
+    </div>
+
+    <script>
+        let chart;
+        let updateInterval;
+        let stockCode;
+
+        async function startRealTimeUpdates() {
+            stockCode = document.getElementById('stockCode').value;
+            if (!stockCode) {
+                alert("请输入股票代码！");
+                return;
+            }
+
+            clearInterval(updateInterval); // 清除之前的更新任务
+
+            try {
+                // 初始化图表
+                const initialData = await fetchStockData(stockCode);
+                if (initialData.success) {
+                    const dates = initialData.history.map(item => item.date);
+                    const prices = initialData.history.map(item => item.price);
+                    drawChart(dates, prices, stockCode);
+
+                    // 开始实时更新
+                    updateInterval = setInterval(async () => {
+                        await updateRealTimeData();
+                    }, 300); // 每0.3秒更新一次数据
+                } else {
+                    alert(initialData.message || "未找到股票数据！");
+                }
+            } catch (error) {
+                console.error("Error starting real-time updates:", error);
+                alert("启动实时更新失败，请稍后重试！");
+            }
+        }
+
+        async function fetchStockData(code) {
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/stock_data?code=${code}`);
+                return await response.json();
+            } catch (error) {
+                console.error("Error fetching stock data:", error);
+                return { success: false, message: "无法获取股票数据" };
+            }
+        }
+
+        async function updateRealTimeData() {
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/stock_data/realtime?code=${stockCode}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const latestPoint = data.latest;
+                    addDataToChart(latestPoint.date, latestPoint.price);
+                } else {
+                    console.warn(data.message || "实时数据获取失败！");
+                }
+            } catch (error) {
+                console.error("Error updating real-time data:", error);
+            }
+        }
+
+        function drawChart(dates, prices, code) {
+            const ctx = document.getElementById('stockChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: `股票代码 ${code} 的历史价格`,
+                        data: prices,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: { display: true, text: '日期' }
+                        },
+                        y: {
+                            title: { display: true, text: '价格' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function addDataToChart(date, price) {
+            if (chart) {
+                chart.data.labels.push(date);
+                chart.data.datasets[0].data.push(price);
+                chart.update();
+            }
+        }
+    </script>
+</body>
+</html>
