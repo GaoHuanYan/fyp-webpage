@@ -1,5 +1,3 @@
-# 文件名: generate_npy.py (修改版)
-
 import sqlite3
 import pandas as pd
 import numpy as np
@@ -9,8 +7,8 @@ import os
 DATABASE_FILE = "stock_data.db"
 NPY_FILE = "stock_data_max_values.npy"
 
-# 这个列表必须和你的预测脚本、模型训练时完全一致！
-# 它决定了 .npy 文件中数据的顺序。
+# This list must be identical to the one used in your prediction script and model training!
+# It determines the order of the data in the .npy file.
 HSI_COMPONENTS_FOR_MODEL = [
      "0001.HK", "0002.HK", "0003.HK", "0005.HK", "0006.HK", "0011.HK", "0012.HK", 
     "0016.HK", "0066.HK", "0101.HK", "0267.HK", "0291.HK", "0386.HK", "0388.HK", 
@@ -31,12 +29,12 @@ HSI_COMPONENTS_FOR_MODEL = [
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def generate_max_values_file():
-    """从数据库读取数据，计算最大值并保存为 .npy 文件。如果数据缺失，则使用 NaN 作为占位符。"""
+    """Reads data from the database, calculates max values, and saves to a .npy file. Uses NaN as a placeholder if data is missing."""
     if not os.path.exists(DATABASE_FILE):
-        logging.error(f"数据库文件 '{DATABASE_FILE}' 不存在。请先运行 `fetch_data.py`。")
+        logging.error(f"Database file '{DATABASE_FILE}' does not exist. Please run `fetch_data.py` first.")
         return
 
-    logging.info(f"开始从 '{DATABASE_FILE}' 读取数据以生成 '{NPY_FILE}'...")
+    logging.info(f"Starting to read data from '{DATABASE_FILE}' to generate '{NPY_FILE}'...")
     
     feature_order = ['high_price', 'low_price', 'open_price', 'volume', 'close_price']
     all_max_values = []
@@ -49,37 +47,37 @@ def generate_max_values_file():
             query = f"SELECT {', '.join(feature_order)} FROM stock_data WHERE stock_code = ?"
             df = pd.read_sql_query(query, conn, params=(stock_code,))
 
-            # --- 主要修改点在这里 ---
+            # --- The main change is here ---
             if df.empty:
-                # 如果数据为空，记录警告并添加一行 NaN 作为占位符
-                logging.warning(f"数据库中缺少股票 {stock_code} 的数据。将在 .npy 文件中使用 NaN 占位。")
+                # If data is empty, log a warning and add a row of NaNs as a placeholder
+                logging.warning(f"Data for stock {stock_code} is missing in the database. Using NaN as a placeholder in the .npy file.")
                 nan_row = [np.nan] * len(feature_order)
                 all_max_values.append(nan_row)
             else:
-                # 如果数据存在，正常计算最大值
+                # If data exists, calculate max values normally
                 max_values_for_stock = df.max().values
                 all_max_values.append(max_values_for_stock)
         
         final_max_values_array = np.array(all_max_values, dtype=np.float32)
         
-        # 这个形状检查现在总是会通过，因为我们总是会添加一行
+        # This shape check will now always pass because we always append a row
         expected_shape = (len(HSI_COMPONENTS_FOR_MODEL), len(feature_order))
         if final_max_values_array.shape != expected_shape:
-            # 这个错误理论上不应该发生，但作为安全检查保留
-            logging.error(f"计算出的最大值数组形状不正确！期望 {expected_shape}, 得到 {final_max_values_array.shape}")
+            # This error should theoretically not happen, but it's kept as a safety check
+            logging.error(f"The calculated max values array has an incorrect shape! Expected {expected_shape}, got {final_max_values_array.shape}")
             return
 
         np.save(NPY_FILE, final_max_values_array)
-        logging.info(f"成功创建 '{NPY_FILE}' 文件，形状为: {final_max_values_array.shape}")
+        logging.info(f"Successfully created '{NPY_FILE}' file with shape: {final_max_values_array.shape}")
 
     except sqlite3.Error as e:
-        logging.error(f"数据库操作失败: {e}")
+        logging.error(f"Database operation failed: {e}")
     except Exception as e:
-        logging.error(f"发生未知错误: {e}")
+        logging.error(f"An unknown error occurred: {e}")
     finally:
         if conn:
             conn.close()
-            logging.info("数据库连接已关闭。")
+            logging.info("Database connection closed.")
 
 if __name__ == "__main__":
     generate_max_values_file()

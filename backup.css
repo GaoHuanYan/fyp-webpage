@@ -1,0 +1,451 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #282c34;
+  color: white;
+}
+
+.App {
+  text-align: left;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  padding: 20px;
+}
+
+
+.header-top-bar {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;          
+  width: 95%;                   
+  max-width: 1400px;
+  margin-bottom: 30px;          
+}
+
+.main-title {
+  margin: 0; 
+  font-size: 1.5em;
+  text-align: left;
+  color: #f0f0f0;
+}
+
+.search-container-top-right {
+  display: flex;
+  align-items: center;
+}
+
+.search-container-top-right input[type="text"] {
+  padding: 8px 12px;
+  font-size: 14px;
+  width: 200px;
+  border-radius: 5px;
+  border: 1px solid #61dafb;
+  background-color: #3a3f44;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.search-container-top-right input[type="text"]:focus {
+  outline: none;
+  box-shadow: 0 0 5px #61dafb;
+}
+
+.search-container-top-right button {
+  padding: 8px 16px;
+  font-size: 14px;
+  margin-left: 8px;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: transparent;
+  border: 1px solid #61dafb;
+  color: #61dafb;
+  transition: all 0.2s ease;
+}
+
+.search-container-top-right button:hover {
+  background-color: #61dafb;
+  color: #282c34;
+}
+
+
+.hsi-chart-container {
+  width: 95%;
+  max-width: 1200px;
+  margin: 20px auto;
+  background-color: #3a3f44;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.hsi-chart-container.placeholder {
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+}
+
+.hsi-chart-container h3 {
+  margin-top: 0;
+  text-align: center;
+  font-weight: 500;
+  color: #eee;
+}
+
+.stock-list-container {
+  text-align: center;
+  width: 100%;
+}
+
+.stock-list-container hr {
+  width: 50%;
+  margin: 40px auto;
+  border-color: #444;
+}
+
+.stock-list-container ul {
+  list-style: none;
+  padding: 0;
+}
+
+.stock-list-container li {
+  margin: 15px 0;
+}
+
+.stock-list-container a {
+  color: #61dafb;
+  font-size: 24px;
+  text-decoration: none;
+  padding: 10px 20px;
+  border: 1px solid #61dafb;
+  border-radius: 5px;
+  display: inline-block;
+  width: 200px;
+  transition: all 0.2s ease;
+}
+
+.stock-list-container a:hover {
+  background-color: #61dafb;
+  color: #282c34;
+}
+
+
+.stock-details-page-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stock-details-subtitle {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ccc;
+}
+
+.details-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 20px;
+  width: 85%;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+
+.chart-container {
+  flex: 3;
+  min-width: 60%;
+  background-color: #3a3f44;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.side-panel {
+  flex: 1;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-self: flex-start;
+}
+
+.ai-summary-container {
+  background-color: #2c3e50;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.ai-summary-header {
+  margin-top: 0;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #555;
+  font-size: 1.1em;
+  color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ai-summary-text {
+  margin: 0;
+  color: #E0E0E0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.news-container {
+  flex: 1;
+  background-color: #3a3f44;
+  border-radius: 8px;
+  padding: 20px;
+  align-self: flex-start;
+}
+
+.news-header {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #555;
+  transition: background-color 0.2s ease;
+  user-select: none;
+  font-size: 0.85em;
+  font-weight: 600;
+  color: #f0f0f0;
+}
+
+.news-header:hover {
+  background-color: #4a4f54;
+}
+
+.news-list {
+  overflow: hidden;
+}
+
+.news-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 15px 0;
+  border-bottom: 1px solid #484848;
+}
+
+.news-item:last-child {
+  border-bottom: none;
+}
+
+.news-content {
+  margin-right: 12px;
+  flex: 1;
+}
+
+.news-item h4 {
+  margin-top: 0;
+  margin-bottom: 5px;
+  font-size: 0.7em;
+  color: #f0f0f0;
+}
+
+.news-item p {
+  margin: 0;
+  font-size: 0.5em;
+  color: #ccc;
+}
+
+.news-date {
+  font-size: 0.6em;
+  color: #aaa;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.news-list > p {
+  padding: 20px 10px;
+  color: #888;
+}
+
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  margin-top: 50px;
+  background-color: #2c303a;
+  border-radius: 8px;
+  border: 1px solid #ff4d4d; 
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 48px; 
+  margin-bottom: 20px;
+}
+
+.error-container h2 {
+  color: #ff8a8a; 
+  margin-bottom: 15px;
+}
+
+.error-message {
+  color: #e0e0e0; 
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 30px;
+}
+
+.home-button {
+  background-color: #61dafb;
+  color: #282c34;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.home-button:hover {
+  background-color: #ffffff;
+}
+/* ======================================================= */
+/* === 全局容器样式 (保持不变) === */
+/* ======================================================= */
+.stock-list-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.list-title {
+    /* 之前的标题样式，可以保留 */
+    font-size: 2rem;
+    color: #e0e0e0;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+
+/* ======================================================= */
+/* === 全新的 Grid 布局列表样式 === */
+/* ======================================================= */
+.top-movers-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px; 
+  
+  /* --- 核心改动在这里 --- */
+  /* 将最大宽度从 960px 减小到 800px */
+  max-width: 800px; 
+  
+  width: 100%;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* 6. 关键一步：让第一个列表项 (li) 横跨所有三列！ */
+.top-movers-list li:first-child {
+  grid-column: 1 / -1; /* 从第一根网格线跨到最后一根 */
+  
+  /* 可以给“冠军”一个更突出的样式 */
+  background-color: #3a3a3a;
+  border-color: #00bcd4; /* 给它一个高亮的边框颜色 */
+}
+
+/* 列表项的通用卡片样式 */
+.top-movers-list li {
+  background-color: #2c2c2c;
+  border: 1px solid #444;
+  border-radius: 8px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  overflow: hidden;
+}
+
+.top-movers-list li:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.top-movers-list li a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  text-decoration: none;
+  color: #e0e0e0;
+  font-size: 1.1rem;
+}
+
+
+
+/* 王冠图标的样式 */
+.crown-icon {
+  margin-right: 12px;
+  font-size: 1.4rem; /* 让王冠大一点 */
+  vertical-align: middle;
+  line-height: 1;
+}
+
+/* 股票代码和涨跌幅样式 */
+.ticker-name {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+}
+
+.ticker-change {
+  font-family: 'Roboto Mono', 'Courier New', Courier, monospace;
+  min-width: 80px;
+  text-align: right;
+}
+
+
+/* ======================================================= */
+/* === 响应式设计：让布局在小屏幕上自动调整 === */
+/* ======================================================= */
+
+/* 在平板电脑尺寸下，变为两列 */
+@media (max-width: 768px) {
+  .top-movers-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 在手机尺寸下，变为单列 */
+@media (max-width: 480px) {
+  .top-movers-list {
+    grid-template-columns: 1fr;
+  }
+  .list-title {
+      font-size: 1.5rem; /* 在小屏幕上缩小标题字号 */
+  }
+}

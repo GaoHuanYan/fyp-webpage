@@ -1,109 +1,42 @@
-// import React, { useState, useEffect } from 'react';
-// import { Link } from 'react-router-dom';
-// import HangSengChart from './HangSengChart';
-
-// // 1. Add a helper function to shuffle an array (Fisher-Yates Shuffle algorithm)
-// // This is a very standard and efficient method for random sorting
-// const shuffleArray = (array) => {
-//   let currentIndex = array.length, randomIndex;
-
-//   // While there remain elements to shuffle...
-//   while (currentIndex !== 0) {
-//     // Pick a remaining element...
-//     randomIndex = Math.floor(Math.random() * currentIndex);
-//     currentIndex--;
-
-//     // And swap it with the current element.
-//     [array[currentIndex], array[randomIndex]] = [
-//       array[randomIndex], array[currentIndex]];
-//   }
-
-//   return array;
-// };
-
-// function StockList() {
-//   const [stocks, setStocks] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     fetch('/api/stocks')
-//       .then(res => res.json())
-//       .then(data => {
-//         // 2. After fetching the data, call this function to shuffle the full stock list
-//         const shuffledStocks = shuffleArray(data);
-        
-//         // 3. Take the first three items from the shuffled array
-//         const randomThreeStocks = shuffledStocks.slice(0, 3);
-        
-//         // 4. Set these three random items into the state, not the entire list
-//         setStocks(randomThreeStocks);
-        
-//         setLoading(false);
-//       })
-//       .catch(error => {
-//         console.error("Failed to fetch stock list:", error);
-//         setLoading(false);
-//       });
-//   }, []);
-
-//   if (loading) {
-//     // For a better user experience, we can slightly modify the loading text
-//     return <div>Loading featured stocks...</div>;
-//   }
-
-//   return (
-//     <div className="stock-list-container">
-//       <HangSengChart />
-      
-//       <hr />
-      
-//       {/* The title can also be modified to be more guiding */}
-//       <h2>Or select a featured stock below</h2>
-      
-//       {/* This part of the JSX code doesn't need to be changed at all, as it automatically renders the content of the state */}
-//       <ul>
-//         {stocks.map(stock => (
-//           <li key={stock.ticker}>
-//             <Link to={`/stock/${stock.ticker}`}>
-//               {stock.ticker}
-//             </Link>
-//           </li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// }
-
-// export default StockList;
-
-
-// 文件名: src/components/StockList.js (最终版本)
-
+// // 引入React核心库和路由组件
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import HangSengChart from './HangSengChart'; // 恒生指数图表组件保持不变
 
-// 1. 新增一个帮助函数，用于格式化数字、添加颜色和正负号
+// 引入子组件和样式文件
+import HangSengChart from './HangSengChart'; // 恒生指数图表组件
+import './../App.css'; // 引入我们修改过的CSS，它包含了Grid布局样式
+
+/**
+ * 帮助函数：格式化涨跌幅百分比
+ * @param {number} change - 涨跌幅数值
+ * @returns {JSX.Element} - 返回带颜色和正负号的JSX元素
+ */
 const formatChange = (change) => {
+  // 处理数据不存在的边缘情况
   if (change === null || change === undefined) {
     return <span style={{ color: 'gray' }}>N/A</span>;
   }
-  const isPositive = change >= 0;
-  const color = isPositive ? '#26a69a' : '#ef5350'; // 专业的绿色和红色
+  
+  // 判断涨跌
+  const isPositive = parseFloat(change) >= 0;
+  // 定义专业的涨（绿）跌（红）颜色
+  const color = isPositive ? '#26a69a' : '#ef5350';
+  // 为正数添加 '+' 号
   const sign = isPositive ? '+' : '';
-  const formattedChange = `${sign}${change.toFixed(2)}%`;
+  // 格式化为带两位小数的百分比字符串
+  const formattedChange = `${sign}${parseFloat(change).toFixed(2)}%`;
 
   return <span style={{ color, fontWeight: 'bold' }}>{formattedChange}</span>;
 };
 
 function StockList() {
-  // 2. 状态变量改名为 topMovers，更清晰
-  const [topMovers, setTopMovers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // 定义组件状态
+  const [topMovers, setTopMovers] = useState([]); // 存储Top 10股票数据
+  const [loading, setLoading] = useState(true);   // 加载状态
+  const [error, setError] = useState(null);       // 错误状态
 
+  // 使用useEffect在组件加载时从后端API获取数据
   useEffect(() => {
-    // 3. API调用地址从 '/api/stocks' 改为 '/api/top-movers'
     fetch('/api/top-movers')
       .then(res => {
         if (!res.ok) {
@@ -112,7 +45,6 @@ function StockList() {
         return res.json();
       })
       .then(data => {
-        // 4. 直接将获取到的10条数据存入状态，不再需要随机筛选
         setTopMovers(data);
         setLoading(false);
       })
@@ -121,27 +53,39 @@ function StockList() {
         setError(error.message);
         setLoading(false);
       });
-  }, []); // 空依赖数组确保只在组件加载时运行一次
+  }, []); // 空依赖数组确保此effect仅运行一次
 
-  // 用于渲染列表内容的函数，包含加载、错误和成功状态
+  // 根据组件状态（加载、错误、成功）渲染不同的内容
   const renderContent = () => {
     if (loading) {
-      return <div>Loading AI Predicted Top 10 Movers...</div>;
+      return <div className="loading-message">Loading AI Predicted Top 10 Movers...</div>;
     }
     if (error) {
-      return <div style={{ color: '#ef5350' }}>Error: {error}</div>;
+      return <div className="error-message" style={{ color: '#ef5350' }}>Error: {error}</div>;
     }
     if (topMovers.length === 0) {
-      return <div>No prediction data available for today. Please run the prediction script.</div>;
+      return <div className="info-message">No prediction data available for today. Please run the prediction script.</div>;
     }
+    
+    // 成功获取数据后，渲染列表
+    // 这个ul列表的布局由 App.css 中的 'top-movers-list' 类控制 (CSS Grid)
     return (
-      // 5. 渲染一个新的、更专业的列表
       <ul className="top-movers-list">
-        {topMovers.map(stock => (
+        {topMovers.map((stock, index) => (
           <li key={stock.ticker}>
             <Link to={`/stock/${stock.ticker}`}>
-              <span className="ticker-name">{stock.ticker}</span>
-              <span className="ticker-change">{formatChange(stock.change_percent)}</span>
+              <span className="ticker-name">
+                
+                {/* === 核心修改点 === */}
+                {/* 如果是第一个元素 (index === 0)，则显示王冠图标 */}
+                {index === 0 && <span className="crown-icon">👑</span>}
+                
+                {stock.ticker}
+              </span>
+              <span className="ticker-change">
+                {/* 使用帮助函数来格式化显示的涨跌幅 */}
+                {formatChange(stock.change_percent)}
+              </span>
             </Link>
           </li>
         ))}
@@ -149,12 +93,15 @@ function StockList() {
     );
   };
 
+  // 组件的最终返回内容
   return (
     <div className="stock-list-container">
       <HangSengChart />
-      <hr />
-      {/* 6. 修改标题，突出AI预测的特点 */}
-      <h2>AI Predicted Top 10 Movers for Next Trading Day</h2>
+      <hr className="divider"/> {/* 建议给hr添加一个类名，方便在CSS中单独设置样式 */}
+      
+      <h2 className="list-title">AI Predicted Top 10 Movers for Next Trading Day</h2>
+      
+      {/* 调用内容渲染函数 */}
       {renderContent()}
     </div>
   );

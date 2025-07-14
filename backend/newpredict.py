@@ -1,5 +1,3 @@
-# 文件名: predict.py (修改版 - 预测并过滤指数)
-
 import sqlite3
 import numpy as np
 import torch
@@ -8,7 +6,7 @@ import logging
 from model import StockMixer
 import os
 
-# --- 配置 ---
+# --- Configuration ---
 DATABASE_FILE = "stock_data.db"
 NPY_FILE = "stock_data_max_values.npy"
 MODEL_PATH = "best_model.pth"
@@ -31,23 +29,23 @@ HSI_COMPONENTS_FOR_MODEL = [
     "2269.HK", "6690.HK", "1024.HK", "9888.HK", "9961.HK", "2015.HK",
 ]
 
-# HSI_COMPONENTS_TO_PREDICT: 这个列表只包含你希望最终保存到数据库的股票。
-# 我们从上面的列表中排除了 "^HSI"。
+# HSI_COMPONENTS_TO_PREDICT: This list contains only the stocks you want to save to the database.
+# We have excluded "^HSI" from the list above.
 HSI_COMPONENTS_TO_PREDICT = [stock for stock in HSI_COMPONENTS_FOR_MODEL if stock != "^HSI"]
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def predict(input_data: np.ndarray) -> np.ndarray:
-    """使用训练好的模型进行预测。此函数现在与模型配置紧密耦合。"""
+    """Uses the trained model to make predictions. This function is now tightly coupled with the model configuration."""
     logging.info("Starting model prediction...")
-    # 检查输入数据是否与模型配置匹配
+    # Check if the input data matches the model configuration
     if input_data.shape != (len(HSI_COMPONENTS_FOR_MODEL), TIME_STEPS, 5):
-        raise ValueError(f"输入数据形状错误! 模型需要 ({len(HSI_COMPONENTS_FOR_MODEL)}, {TIME_STEPS}, 5), 但得到 {input_data.shape}")
+        raise ValueError(f"Incorrect input data shape! Model requires ({len(HSI_COMPONENTS_FOR_MODEL)}, {TIME_STEPS}, 5), but got {input_data.shape}")
 
     max_values = np.load(NPY_FILE)
     if max_values.shape[0] != len(HSI_COMPONENTS_FOR_MODEL):
-        raise ValueError(f".npy文件中的股票数量 ({max_values.shape[0]}) 与模型配置 ({len(HSI_COMPONENTS_FOR_MODEL)}) 不匹配。")
+        raise ValueError(f"The number of stocks in the .npy file ({max_values.shape[0]}) does not match the model configuration ({len(HSI_COMPONENTS_FOR_MODEL)}).")
 
     normalized_data = np.zeros_like(input_data, dtype=np.float32)
     for i in range(input_data.shape[0]):
@@ -60,7 +58,7 @@ def predict(input_data: np.ndarray) -> np.ndarray:
     logging.info("Data normalization complete.")
 
     model = StockMixer(
-        stocks=len(HSI_COMPONENTS_FOR_MODEL), # 使用包含指数的完整数量来初始化模型
+        stocks=len(HSI_COMPONENTS_FOR_MODEL), # Initialize the model using the full count of stocks, including the index
         time_steps=TIME_STEPS, channels=5, market=20, scale=3
     )
     model.load_state_dict(torch.load(MODEL_PATH, map_location=torch.device('cpu')))
@@ -83,8 +81,8 @@ def predict(input_data: np.ndarray) -> np.ndarray:
     return denormalized_output
 
 def create_predictions_table(conn):
-    """创建或更新预测表，此函数无需改动。"""
-    # ... (代码与之前版本完全相同)
+    """Creates or updates the predictions table, this function does not need changes."""
+    # ... (Code is identical to the previous version)
     try:
         with conn:
             cursor = conn.cursor()
@@ -105,7 +103,7 @@ def create_predictions_table(conn):
         raise
 
 def generate_and_store_real_predictions():
-    """获取数据，预测，计算涨跌幅，并只将成分股结果存入数据库"""
+    """Fetches data, predicts, calculates percentage change, and stores only the component stock results in the database."""
     for file_path in [DATABASE_FILE, NPY_FILE, MODEL_PATH]:
         if not os.path.exists(file_path):
             logging.error(f"CRITICAL: Required file not found: '{file_path}'. Aborting.")
@@ -119,8 +117,6 @@ def generate_and_store_real_predictions():
         input_data_list = []
         latest_date_str = None
         last_close_prices = {} 
-
-        # --- 修改2: 为模型所需的所有股票（包括^HSI）获取数据 ---
         logging.info(f"Fetching latest data for all {len(HSI_COMPONENTS_FOR_MODEL)} tickers required by the model...")
         for stock_code in HSI_COMPONENTS_FOR_MODEL:
             cursor = conn.cursor()
@@ -147,7 +143,7 @@ def generate_and_store_real_predictions():
             return
 
         input_data_np = np.array(input_data_list, dtype=np.float32)
-        # 模型会返回所有股票（包括^HSI）的预测价格
+        # The model will return predicted prices for all stocks (including ^HSI)
         predicted_prices = predict(input_data_np)
 
         prediction_date = datetime.strptime(latest_date_str, '%Y-%m-%d') + timedelta(days=1)
@@ -156,10 +152,9 @@ def generate_and_store_real_predictions():
         
         all_predictions_to_insert = []
         
-        # --- 修改3: 过滤结果，只处理并保存成分股的预测 ---
         logging.info("Filtering predictions to store only component stocks (excluding index)...")
         for i, stock_code in enumerate(HSI_COMPONENTS_FOR_MODEL):
-            # 如果当前股票是我们不想保存的（比如指数），就跳过
+            # If the current stock is one we don't want to save (like the index), skip it
             if stock_code not in HSI_COMPONENTS_TO_PREDICT:
                 logging.info(f"Skipping DB insertion for '{stock_code}' as it is not in the target prediction list.")
                 continue
