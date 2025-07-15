@@ -1,41 +1,39 @@
-// // 引入React核心库和路由组件
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-// 引入子组件和样式文件
-import HangSengChart from './HangSengChart'; // 恒生指数图表组件
-import './../App.css'; // 引入我们修改过的CSS，它包含了Grid布局样式
+import HangSengChart from './HangSengChart'; 
+import './../App.css'; 
 
 /**
- * 帮助函数：格式化涨跌幅百分比
- * @param {number} change - 涨跌幅数值
- * @returns {JSX.Element} - 返回带颜色和正负号的JSX元素
+ * Helper function: Formats the percentage change.
+ * @param {number} change - The change value.
+ * @returns {JSX.Element} - Returns a JSX element with color and sign.
  */
 const formatChange = (change) => {
-  // 处理数据不存在的边缘情况
+  // Handle the edge case where data is null or undefined.
   if (change === null || change === undefined) {
     return <span style={{ color: 'gray' }}>N/A</span>;
   }
   
-  // 判断涨跌
+  // Determine if the change is positive or negative.
   const isPositive = parseFloat(change) >= 0;
-  // 定义专业的涨（绿）跌（红）颜色
+  // Define professional colors for gain (green) and loss (red).
   const color = isPositive ? '#26a69a' : '#ef5350';
-  // 为正数添加 '+' 号
+  // Add a '+' sign for positive numbers.
   const sign = isPositive ? '+' : '';
-  // 格式化为带两位小数的百分比字符串
+  // Format as a percentage string with two decimal places.
   const formattedChange = `${sign}${parseFloat(change).toFixed(2)}%`;
 
   return <span style={{ color, fontWeight: 'bold' }}>{formattedChange}</span>;
 };
 
 function StockList() {
-  // 定义组件状态
-  const [topMovers, setTopMovers] = useState([]); // 存储Top 10股票数据
-  const [loading, setLoading] = useState(true);   // 加载状态
-  const [error, setError] = useState(null);       // 错误状态
+  // Define component state
+  const [topMovers, setTopMovers] = useState([]); // Stores the Top 10 stock data
+  const [loading, setLoading] = useState(true);   // Loading state
+  const [error, setError] = useState(null);       // Error state
 
-  // 使用useEffect在组件加载时从后端API获取数据
+  // Use useEffect to fetch data from the backend API when the component mounts.
   useEffect(() => {
     fetch('/api/top-movers')
       .then(res => {
@@ -53,9 +51,9 @@ function StockList() {
         setError(error.message);
         setLoading(false);
       });
-  }, []); // 空依赖数组确保此effect仅运行一次
+  }, []); // The empty dependency array ensures this effect runs only once.
 
-  // 根据组件状态（加载、错误、成功）渲染不同的内容
+  // Render different content based on the component's state (loading, error, success).
   const renderContent = () => {
     if (loading) {
       return <div className="loading-message">Loading AI Predicted Top 10 Movers...</div>;
@@ -67,8 +65,8 @@ function StockList() {
       return <div className="info-message">No prediction data available for today. Please run the prediction script.</div>;
     }
     
-    // 成功获取数据后，渲染列表
-    // 这个ul列表的布局由 App.css 中的 'top-movers-list' 类控制 (CSS Grid)
+    // After successfully fetching the data, render the list.
+    // The layout of this ul list is controlled by the 'top-movers-list' class in App.css (CSS Grid).
     return (
       <ul className="top-movers-list">
         {topMovers.map((stock, index) => (
@@ -76,14 +74,14 @@ function StockList() {
             <Link to={`/stock/${stock.ticker}`}>
               <span className="ticker-name">
                 
-                {/* === 核心修改点 === */}
-                {/* 如果是第一个元素 (index === 0)，则显示王冠图标 */}
-                {index === 0 && <span className="crown-icon">👑</span>}
+                {/* === This is the modified core logic === */}
+                {/* Only display the crown if it's the first item and the change is positive. */}
+                {index === 0 && stock.change_percent >= 0 && <span className="crown-icon">👑</span>}
                 
                 {stock.ticker}
               </span>
               <span className="ticker-change">
-                {/* 使用帮助函数来格式化显示的涨跌幅 */}
+                {/* Use the helper function to format the displayed percentage change. */}
                 {formatChange(stock.change_percent)}
               </span>
             </Link>
@@ -93,15 +91,15 @@ function StockList() {
     );
   };
 
-  // 组件的最终返回内容
+  // The final return content of the component.
   return (
     <div className="stock-list-container">
       <HangSengChart />
-      <hr className="divider"/> {/* 建议给hr添加一个类名，方便在CSS中单独设置样式 */}
+      <hr className="divider"/> 
       
       <h2 className="list-title">AI Predicted Top 10 Movers for Next Trading Day</h2>
       
-      {/* 调用内容渲染函数 */}
+      {/* Call the content rendering function. */}
       {renderContent()}
     </div>
   );

@@ -12,19 +12,27 @@ body {
   color: #e0e0e0;
 }
 
+/* === MODIFIED FOR STICKY FOOTER === */
+/* We make the main App container a flex column that takes up the full viewport height */
 .App {
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* This is key! */
 }
 
+/* === MODIFIED FOR STICKY FOOTER === */
+/* The header will now act as the main content area that grows to push the footer down */
 .App-header {
   background-color: #1e222d;
-  min-height: 100vh;
+  /* min-height is no longer needed here as flexbox handles it */
   display: flex;
   flex-direction: column;
   align-items: center;
   font-size: calc(10px + 2vmin);
   color: white;
   padding: 20px;
+  flex: 1; /* This makes the content area take up all available space */
 }
 
 
@@ -188,23 +196,11 @@ body {
   font-size: 1.1rem;
 }
 
-/* 
- * ==================================================================
- * ===                  最终修改区域                    ===
- * ==================================================================
-*/
-
 /* --- 【新增】专门为冠军行<a>标签设置的居中样式 --- */
 .top-movers-list li:first-child a {
   justify-content: center; /* 关键修改：覆盖为居中对齐 */
   gap: 16px;               /* 新增：在皇冠文字组合和涨跌幅之间增加一些间距 */
 }
-
-/*
- * ==================================================================
- * ===                       修改结束                         ===
- * ==================================================================
-*/
 
 
 .crown-icon {
@@ -439,4 +435,27 @@ body {
 
 .home-button:hover {
   background-color: #ffffff;
+}
+
+/* ==========================================================================
+   6. APP FOOTER (NEW SECTION)
+   ========================================================================== */
+.app-footer {
+  width: 100%;
+  padding: 20px 0; /* Add some vertical spacing */
+  text-align: center;
+  background-color: #1c1c1e; /* A dark background that matches the theme */
+  border-top: 1px solid #333; /* A subtle line to separate it from content */
+  margin-top: auto; /* This is crucial for the sticky footer effect in flexbox */
+}
+
+.app-footer p {
+  margin: 0;
+  /* === THIS IS THE MODIFIED LINE === */
+  color: #c9b47f; /* A brighter, warm yellow for better visibility */
+  font-size: 0.85rem; /* Make the text slightly smaller */
+  max-width: 800px; /* Prevent the line from being too wide on large screens */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px; /* Add some horizontal padding on mobile */
 }
