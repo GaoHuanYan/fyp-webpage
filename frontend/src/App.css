@@ -12,27 +12,22 @@ body {
   color: #e0e0e0;
 }
 
-/* === MODIFIED FOR STICKY FOOTER === */
-/* We make the main App container a flex column that takes up the full viewport height */
 .App {
   text-align: left;
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* This is key! */
+  min-height: 100vh;
 }
 
-/* === MODIFIED FOR STICKY FOOTER === */
-/* The header will now act as the main content area that grows to push the footer down */
 .App-header {
   background-color: #1e222d;
-  /* min-height is no longer needed here as flexbox handles it */
   display: flex;
   flex-direction: column;
   align-items: center;
   font-size: calc(10px + 2vmin);
   color: white;
   padding: 20px;
-  flex: 1; /* This makes the content area take up all available space */
+  flex: 1;
 }
 
 
@@ -148,7 +143,6 @@ body {
   margin: 0 auto;
 }
 
-/* --- 卡片通用样式 --- */
 .top-movers-list li {
   background-color: #2c303a;
   border: 1px solid #383c4a;
@@ -157,13 +151,11 @@ body {
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
 }
 
-/* --- 所有卡片悬浮时的通用效果 (移动和阴影) --- */
 .top-movers-list li:hover {
   transform: translateY(-4px);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* --- 【混合模式】冠军行特殊样式 --- */
 .top-movers-list li:first-child {
   grid-column: 1 / -1;
   background-color: #3a3f44;
@@ -171,21 +163,18 @@ body {
   border-color: transparent;
 }
 
-/* 冠军行悬浮时，只改变 box-shadow */
 .top-movers-list li:first-child:hover {
   transform: translateY(-4px);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3), 0 0 0 2px #8bfaff;
 }
 
-/* --- 【混合模式】普通行悬浮样式 --- */
 .top-movers-list li:not(:first-child):hover {
   border-color: #61dafb;
 }
 
-/* --- 卡片内链接通用样式，对所有卡片生效 --- */
 .top-movers-list li a {
   display: flex;
-  justify-content: space-between; /* 默认两端对齐 */
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   height: 100%;
@@ -196,10 +185,9 @@ body {
   font-size: 1.1rem;
 }
 
-/* --- 【新增】专门为冠军行<a>标签设置的居中样式 --- */
 .top-movers-list li:first-child a {
-  justify-content: center; /* 关键修改：覆盖为居中对齐 */
-  gap: 16px;               /* 新增：在皇冠文字组合和涨跌幅之间增加一些间距 */
+  justify-content: center;
+  gap: 16px;
 }
 
 
@@ -223,9 +211,6 @@ body {
   text-align: right;
 }
 
-
-
-/* --- 响应式布局 --- */
 @media (max-width: 768px) {
   .top-movers-list {
     grid-template-columns: repeat(2, 1fr);
@@ -282,20 +267,25 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  align-self: flex-start;
+  min-height: 0; /* <-- 关键修复！允许 flex 项收缩，防止其内容撑破布局 */
 }
 
 .ai-summary-container {
   background-color: #2c3e50;
   border-radius: 8px;
   padding: 20px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow-y: auto; /* 这将确保在内容溢出时出现滚动条 */
 }
 
 .ai-summary-header {
   margin-top: 0;
   margin-bottom: 15px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #555;
+  border-bottom: 1px solid #4a6278;
   font-size: 1.1em;
   color: #f0f0f0;
   display: flex;
@@ -303,19 +293,65 @@ body {
   gap: 10px;
 }
 
-.ai-summary-text {
-  margin: 0;
+.ai-report-content {
   color: #E0E0E0;
   font-size: 0.9rem;
   line-height: 1.6;
-  white-space: pre-wrap;
+}
+
+.ai-report-content h4.ai-report-header {
+  font-size: 1rem;
+  color: #61dafb;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #404a54;
+}
+
+.ai-report-content h4.ai-report-header:first-of-type {
+  margin-top: 0;
+}
+
+.ai-report-content ul {
+  padding-left: 20px;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.ai-report-content li {
+  margin-bottom: 8px;
+  padding-left: 5px;
+}
+
+.ai-report-content li::marker {
+  color: #61dafb;
+}
+
+.ai-report-content strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.ai-report-content h4.ai-report-header:last-of-type + ul li {
+    background-color: rgba(97, 218, 251, 0.1);
+    border-left: 3px solid #61dafb;
+    padding: 8px 12px;
+    margin-left: -20px;
+    list-style: none;
+}
+
+.news-section-container {
+  width: 85%;
+  max-width: 1300px;
+  margin: 20px auto 0;
 }
 
 .news-container {
   background-color: #2c303a;
   border-radius: 8px;
   padding: 20px;
-  align-self: flex-start;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .news-header {
@@ -324,11 +360,12 @@ body {
   justify-content: space-between;
   align-items: center;
   padding-bottom: 12px;
+  margin-top: 0;
   margin-bottom: 12px;
   border-bottom: 1px solid #555;
   transition: background-color 0.2s ease;
   user-select: none;
-  font-size: 0.85em;
+  font-size: 1.1em;
   font-weight: 600;
   color: #f0f0f0;
 }
@@ -361,18 +398,18 @@ body {
 .news-item h4 {
   margin-top: 0;
   margin-bottom: 5px;
-  font-size: 0.7em;
+  font-size: 1rem;
   color: #f0f0f0;
 }
 
 .news-item p {
   margin: 0;
-  font-size: 0.5em;
+  font-size: 0.9rem;
   color: #ccc;
 }
 
 .news-date {
-  font-size: 0.6em;
+  font-size: 0.85rem;
   color: #aaa;
   white-space: nowrap;
   flex-shrink: 0;
@@ -438,24 +475,43 @@ body {
 }
 
 /* ==========================================================================
-   6. APP FOOTER (NEW SECTION)
+   6. APP FOOTER
    ========================================================================== */
 .app-footer {
   width: 100%;
-  padding: 20px 0; /* Add some vertical spacing */
+  padding: 20px 0;
   text-align: center;
-  background-color: #1c1c1e; /* A dark background that matches the theme */
-  border-top: 1px solid #333; /* A subtle line to separate it from content */
-  margin-top: auto; /* This is crucial for the sticky footer effect in flexbox */
+  background-color: #1c1c1e;
+  border-top: 1px solid #333;
+  margin-top: auto;
 }
 
 .app-footer p {
   margin: 0;
-  /* === THIS IS THE MODIFIED LINE === */
-  color: #c9b47f; /* A brighter, warm yellow for better visibility */
-  font-size: 0.85rem; /* Make the text slightly smaller */
-  max-width: 800px; /* Prevent the line from being too wide on large screens */
+  color: #c9b47f;
+  font-size: 0.85rem;
+  max-width: 800px;
   margin-left: auto;
   margin-right: auto;
-  padding: 0 20px; /* Add some horizontal padding on mobile */
+  padding: 0 20px;
+}
+
+/* --- 美化滚动条样式 (可选) --- */
+.ai-summary-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ai-summary-container::-webkit-scrollbar-track {
+  background: #2c3e50;
+  border-radius: 4px;
+}
+
+.ai-summary-container::-webkit-scrollbar-thumb {
+  background-color: #4a6278;
+  border-radius: 4px;
+  border: 2px solid #2c3e50;
+}
+
+.ai-summary-container::-webkit-scrollbar-thumb:hover {
+  background-color: #61dafb;
 }
